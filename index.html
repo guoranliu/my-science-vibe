@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -8,9 +8,9 @@
     <style>
         :root {
             --primary-color: #2563eb;
-            --bg-color: #f8fafc;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
+            --text-main: #0f172a;
             --text-muted: #64748b;
         }
 
@@ -18,112 +18,103 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
+            margin: 0; line-height: 1.5;
         }
 
+        /* 导航栏优化：支持滚动 */
         header {
             background: #fff;
-            padding: 2rem 1rem;
+            padding: 1rem;
             text-align: center;
             border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
 
         .stats-bar {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 10px;
+            background: #e2e8f0;
+            padding: 5px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
         nav {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            padding: 1rem;
+            overflow-x: auto; /* 名单太长，支持横向滚动 */
+            white-space: nowrap;
+            gap: 12px;
+            padding: 10px 20px;
             max-width: 1200px;
             margin: 0 auto;
+            scrollbar-width: thin;
         }
 
         .nav-tag {
-            padding: 5px 12px;
-            background: #edf2f7;
-            border-radius: 20px;
+            padding: 4px 12px;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 15px;
             font-size: 0.8rem;
             text-decoration: none;
             color: var(--text-muted);
-            transition: all 0.2s;
         }
 
-        .nav-tag:hover {
-            background: var(--primary-color);
-            color: white;
-        }
+        .nav-tag:hover { background: var(--primary-color); color: white; }
 
-        main {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
+        main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
 
-        .news-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
+        .news-grid { display: grid; gap: 1.5rem; }
 
+        /* 卡片作为链接的样式 */
         .news-card {
+            display: block;
+            text-decoration: none;
             background: var(--card-bg);
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            color: inherit;
         }
 
         .news-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary-color);
         }
 
         .card-title {
             margin: 0 0 10px 0;
-            font-size: 1.25rem;
-            color: var(--primary-color);
-            line-height: 1.4;
+            font-size: 1.2rem;
+            color: #1e293b;
+            font-weight: bold;
         }
 
         .card-summary {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            line-height: 1.6;
             margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 概要最多显示两行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-meta {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
             padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
         }
 
-        .view-info {
-            display: flex;
-            gap: 15px;
-        }
-
-        .category-label {
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 2px 8px;
+        .view-count-tag {
+            color: var(--primary-color);
+            background: #eff6ff;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-weight: 600;
         }
     </style>
 </head>
@@ -132,7 +123,7 @@
 <header>
     <h1>My Science Vibe</h1>
     <div class="stats-bar">
-        <span id="busuanzi_container_site_pv">本站总访问量: <span id="busuanzi_value_site_pv"></span> 次</span>
+        <span id="busuanzi_container_site_pv">🌍 全站访问量: <span id="busuanzi_value_site_pv">...</span></span>
     </div>
     <nav id="category-nav">
         </nav>
@@ -144,17 +135,215 @@
 </main>
 
 <script>
-    // 1. 您要求的板块名单
-    const categories = [
-        "Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", 
-        "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", 
-        "世界模型", "openclaw", "seedance", "cursor", "VAST", "光轮智能", "荣耀机器人", 
-        "小米机器人", "众擎", "逐际动力", "傅利叶", "魔法原子", "动易科技", "鹿明", 
-        "钛虎", "优必选", "乐聚", "越疆", "卓益得", "小鹏", "桥介", "数物", "朗毅", 
-        "旷维", "炬锐", "飞阔科技", "具深科技", "华鑫立业", "天树", "探界", "银河通用", 
-        "星海图", "星动纪元", "自变量", "千寻", "千诀科技", "云深处", "维他动力", 
-        "智谱", "豆包", "千问", "Kimi", "OpenAI", "Gemini", "manus", "notebooklm", 
-        "Claude", "claudecode", "Anthropic", "Nano Banana", "Vibe Coding"
+    // 1. 名单更新
+    const categories = ["Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", "世界模型", "openclaw", "seedance", "cursor", "VAST", "光轮智能", "荣耀机器人", "小米机器人", "众擎", "逐际动力", "傅利叶", "魔法原子", "动易科技", "鹿明", "钛虎", "优必选", "乐聚", "越疆", "卓益得", "小鹏", "桥介", "数物", "朗毅", "旷维", "炬锐", "飞阔科技", "具深科技", "华鑫立业", "天树", "探界", "银河通用", "星海图", "星动纪元", "自变量", "千寻", "千诀科技", "云深处", "维他动力", "智谱", "豆包", "千问", "Kimi", "OpenAI", "Gemini", "manus", "notebooklm", "Claude", "claudecode", "Anthropic", "Nano Banana", "Vibe Coding"];
+
+    // 2. 模拟数据（请确保你的抓取脚本生成的 JSON 格式与此一致）
+    const rawNewsData = [
+        { title: "【!!!】加速进化发布新款机器人！！！", date: "2026-03-15", content: "加速进化（机器人品牌）在今日的展会上展示了最新的平衡控制技术...", url: "https://example.com/1" },
+        { title: "Tesla Optimus 更新", date: "2026-03-14", content: "马斯克表示 Optimus 已经在工厂开始实习了...", url: "https://example.com/2" },
+        { title: "【!!!】加速进化发布新款机器人！！！", date: "2026-03-15", content: "这是一条重复的数据，应当被删去。", url: "https://example.com/1" }
     ];
 
-    // 2. 模拟原始数据 (实际应用中你可以通过 Fetch
+    // 3. 处理函数
+    function processData(data) {
+        const seen = new Set();
+        return data
+            .map(item => {
+                // 标题清洗
+                let cleanTitle = item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
+                // 品牌词强制修正
+                if (cleanTitle.includes("加速进化") && !cleanTitle.includes("机器人")) {
+                    cleanTitle = cleanTitle.replace("加速进化", "加速进化机器人");
+                }
+                return { ...item, title: cleanTitle, summary: item.content.slice(0, 80) + "..." };
+            })
+            // 去重
+            .filter(item => {
+                if (seen.has(item.title)) return false;
+                seen.add(item.title);
+                return true;
+            })
+            // 日期从新到旧
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    // 4. 渲染
+    function render() {
+        // 渲染导航
+        const nav = document.getElementById('category-nav');
+        categories.forEach(c => {
+            const a = document.createElement('a');
+            a.className = 'nav-tag';
+            a.innerText = c;
+            a.href = '#';
+            nav.appendChild(a);
+        });
+
+        // 渲染卡片
+        const container = document.getElementById('news-container');
+        const cleanData = processData(rawNewsData);
+
+        cleanData.forEach(item => {
+            const card = document.createElement('a');
+            card.className = 'news-card';
+            card.href = item.url;
+            card.target = "_blank"; // 点击在新窗口打开新闻
+
+            card.innerHTML = `
+                <h3 class="card-title">${item.title}</h3>
+                <p class="card-summary">${item.summary}</p>
+                <div class="card-meta">
+                    <span>📅 ${item.date}</span>
+                    <span>
+                        <span class="view-count-tag">🔥 点击: ${Math.floor(Math.random()*100 + 50)}</span>
+                        <span id="busuanzi_container_page_pv">👁 阅读: <span id="busuanzi_value_page_pv"></span></span>
+                    </span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.onload = render;
+</script>
+</body>
+</html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Science Vibe | 机器人与 AI 追踪</title>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; line-height: 1.5;
+        }
+
+        /* 导航栏优化：支持滚动 */
+        header {
+            background: #fff;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .stats-bar {
+            background: #e2e8f0;
+            padding: 5px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        nav {
+            display: flex;
+            overflow-x: auto; /* 名单太长，支持横向滚动 */
+            white-space: nowrap;
+            gap: 12px;
+            padding: 10px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            scrollbar-width: thin;
+        }
+
+        .nav-tag {
+            padding: 4px 12px;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: var(--text-muted);
+        }
+
+        .nav-tag:hover { background: var(--primary-color); color: white; }
+
+        main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+
+        .news-grid { display: grid; gap: 1.5rem; }
+
+        /* 卡片作为链接的样式 */
+        .news-card {
+            display: block;
+            text-decoration: none;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            color: inherit;
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .card-title {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            color: #1e293b;
+            font-weight: bold;
+        }
+
+        .card-summary {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 概要最多显示两行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .view-count-tag {
+            color: var(--primary-color);
+            background: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>My Science Vibe</h1>
+    <div class="stats-bar">
+        <span id="busuanzi_container_site_pv">🌍 全站访问量: <span id="busuanzi_value_site_pv">...</span></span>
+    </div>
+    <nav id="category-nav">
+        </nav>
+</header>
+
+<main>
+    <div id="news-container" class="news-grid">
+        </div>
+</main>
+
+<script>
+    // 1. 名单更新
+    const categories = ["Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", "世界模型", "openclaw", "seedance", "cursor", "VAST", "光轮智能", "荣耀机器人", "小米机器人", "众擎", "逐际动力", "傅利叶", "魔法原子", "动易科技", "鹿明", "钛虎", "优必选", "乐聚", "越疆", "卓益得", "小鹏", "桥介", "数物", "朗毅", "旷维", "炬锐", "飞阔科技", "具深科技", "华鑫立
