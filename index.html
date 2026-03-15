@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Intelligence 2026</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --sub: #86868b;
+            --accent: #0071e3;
+            --topic-tag: #e8f2ff;
+        }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, "SF Pro", sans-serif; margin: 0; padding: 0; }
+        
+        /* 侧边栏导航 */
+        nav {
+            position: fixed;
+            left: 0; top: 0; bottom: 0; width: 220px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding: 40px 20px;
+            z-index: 100;
+        }
+        .nav-group { margin-bottom: 30px; }
+        .nav-title { font-size: 12px; font-weight: 600; color: var(--sub); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+        .nav-item { 
+            padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; 
+            margin-bottom: 4px; transition: 0.2s; color: #424245;
+        }
+        .nav-item:hover { background: rgba(0,0,0,0.05); }
+        .nav-item.active { background: var(--accent); color: white; font-weight: 500; }
+
+        /* 主内容区 */
+        main { margin-left: 260px; padding: 60px 40px; }
+        header { margin-bottom: 50px; }
+        header h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 24px; 
+        }
+
+        .card {
+            background: var(--card); border-radius: 20px; padding: 24px;
+            text-decoration: none; color: inherit;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        
+        .card-meta { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .source-tag { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--topic-tag); padding: 4px 8px; border-radius: 4px; }
+        .date { font-size: 11px; color: var(--sub); }
+        
+        .card h2 { font-size: 18px; line-height: 1.4; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card p { font-size: 14px; color: var(--sub); line-height: 1.6; flex-grow: 1; }
+        
+        .loading { font-size: 18px; color: var(--sub); text-align: center; grid-column: 1/-1; padding: 100px; }
+
+        @media (max-width: 900px) {
+            nav { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
+            main { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-group">
+        <div class="nav-title">核心领域</div>
+        <div class="nav-item active" onclick="updateView('机器人', this)">机器人</div>
+        <div class="nav-item" onclick="updateView('人工智能 AI', this)">人工智能</div>
+        <div class="nav-item" onclick="updateView('低空经济 eVTOL', this)">低空经济</div>
+        <div class="nav-item" onclick="updateView('能源 电池', this)">能源</div>
+        <div class="nav-item" onclick="updateView('区块链 Web3', this)">区块链</div>
+    </div>
+    <div class="nav-group">
+        <div class="nav-title">专题跟进</div>
+        <div class="nav-item" onclick="updateView('Google 谷歌', this)">谷歌</div>
+        <div class="nav-item" onclick="updateView('Tesla 特斯拉', this)">特斯拉</div>
+        <div class="nav-item" onclick="updateView('NVIDIA 英伟达', this)">英伟达</div>
+        <div class="nav-item" onclick="updateView('Unitree 宇树科技', this)">宇树</div>
+        <div class="nav-item" onclick="updateView('加速进化机器人', this)">加速进化</div>
+        <div class="nav-item" onclick="updateView('松延动力', this)">松延动力</div>
+        <div class="nav-item" onclick="updateView('银河通用机器人', this)">银河通用</div>
+    </div>
+</nav>
+
+<main>
+    <header>
+        <h1 id="page-title">机器人</h1>
+        <p id="sub-info">2026 实时情报监控中...</p>
+    </header>
+
+    <div class="grid" id="feed-grid">
+        <div class="loading">正在扫描全网情报...</div>
+    </div>
+</main>
+
+<script>
+    // 动态更新视图
+    async function updateView(keyword, element) {
+        // UI 切换
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        if(element) element.classList.add('active');
+        document.getElementById('page-title').innerText = keyword.split(' ')[0];
+
+        const grid = document.getElementById('feed-grid');
+        grid.innerHTML = '<div class="loading">正在穿透全网检索 "' + keyword + '" 相关动态...</div>';
+
+        // 使用 Google News RSS + rss2json 实现全网抓取
+        // q=为搜索词，hl=zh-CN为中文结果，when:1d表示最近24小时
+        const GOOGLE_NEWS_RSS = `https://news.google.com/rss/search?q=${encodeURIComponent(keyword)}+when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans`;
+        const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(GOOGLE_NEWS_RSS)}`;
+
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+
+            if (data.status === 'ok' && data.items.length > 0) {
+                renderGrid(data.items);
+            } else {
+                grid.innerHTML = '<div class="loading">该专题暂无 24 小时内的爆发性动态。</div>';
+            }
+        } catch (error) {
+            grid.innerHTML = '<div class="loading">情报链路中断，请稍后刷新。</div>';
+        }
+    }
+
+    function renderGrid(articles) {
+        const grid = document.getElementById('feed-grid');
+        grid.innerHTML = '';
+
+        articles.forEach(item => {
+            // 简单的内容清洗
+            const date = new Date(item.pubDate).toLocaleDateString('zh-CN');
+            
+            const card = document.createElement('a');
+            card.className = 'card';
+            card.href = item.link;
+            card.target = '_blank';
+            
+            card.innerHTML = `
+                <div class="card-meta">
+                    <span class="source-tag">${item.author || '权威媒体'}</span>
+                    <span class="date">${date}</span>
+                </div>
+                <h2>${item.title}</h2>
+                <p>点击查看全网深度报道及实时评论...</p>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // 初始化
+    updateView('机器人');
+</script>
+
+</body>
+</html>
