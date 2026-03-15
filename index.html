@@ -23,7 +23,7 @@
         .card-summary { font-size: 0.95rem; color: var(--muted); margin-bottom: 15px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; }
         .cat-pill { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
-        .loading { text-align: center; padding: 100px; color: var(--muted); }
+        .empty-hint { text-align: center; padding: 100px; color: var(--muted); }
     </style>
 </head>
 <body>
@@ -31,21 +31,37 @@
 <header>
     <div class="site-title">My Science Vibe</div>
     <div class="stats-bar">
-        <span id="busuanzi_container_site_pv">全站访问量: <span id="busuanzi_value_site_pv">...</span></span>
+        <span id="busuanzi_container_site_pv">🌍 累计情报追踪次数: <span id="busuanzi_value_site_pv">...</span></span>
     </div>
-    <nav id="category-nav"><div class="nav-tag active" onclick="filterNews('全部')">全部</div></nav>
+    <nav id="category-nav">
+        <div class="nav-tag active" onclick="filterNews('全部')">全部</div>
+    </nav>
 </header>
 
 <main>
-    <div id="news-container" class="news-grid"><div class="loading">正在加载全球海量情报...</div></div>
+    <div id="news-container" class="news-grid"></div>
 </main>
 
 <script>
+    // 1. 完整板块名单
     const categories = ["Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", "世界模型", "openclaw", "seedance", "cursor", "VAST", "光轮智能", "荣耀机器人", "小米机器人", "众擎", "逐际动力", "傅利叶", "魔法原子", "动易科技", "鹿明", "钛虎", "优必选", "乐聚", "越疆", "卓益得", "小鹏", "桥介", "数物", "朗毅", "旷维", "炬锐", "飞阔科技", "具深科技", "华鑫立业", "天树", "探界", "银河通用", "星海图", "星动纪元", "自变量", "千寻", "千诀科技", "云深处", "维他动力", "智谱", "豆包", "千问", "Kimi", "OpenAI", "Gemini", "manus", "notebooklm", "Claude", "claudecode", "Anthropic", "Nano Banana", "Vibe Coding"];
+
+    // 2. 海量数据区：在这里放入你抓取到的所有情报
+    const rawNewsData = [
+        { title: "Tesla Optimus 德州工厂最新训练画面曝光", date: "2026-03-15", content: "特斯拉展示了 Optimus 在复杂工厂环境下进行电池包搬运的最新进度，其端到端神经网络模型已经可以处理 90% 以上的异常情况。", cat: "Tesla", url: "#" },
+        { title: "【!!!】加速进化机器人品牌发布新一代人形平台", date: "2026-03-15", content: "加速进化公司今日宣布，其最新研发的人形机器人已经实现了户外复杂地形的自主奔跑。", cat: "加速进化", url: "#" },
+        { title: "Nvidia Blackwell 算力中心大规模投产", date: "2026-03-14", content: "黄仁勋在 GTC 大会上表示，具身智能的物理仿真速度已提升 100 倍。", cat: "Nvidia", url: "#" },
+        { title: "宇树 Unitree G1 进驻各大科研院所", date: "2026-03-14", content: "国产人形机器人正式开启大规模交付，加速了具身智能算法的迭代。", cat: "宇树", url: "#" },
+        { title: "字节跳动 AI 实验室发布 VLA 模型进展", date: "2026-03-13", content: "字节跳动在视觉-语言-动作模型（VLA）领域取得新突破，大幅提升了机器人的通用抓取成功率。", cat: "字节", url: "#" },
+        { title: "OpenAI 与 Figure 02 深度集成测试", date: "2026-03-12", content: "Figure 机器人现在具备了更强的情绪理解与任务拆解能力。", cat: "OpenAI", url: "#" },
+        { title: "智谱清言发布 2026 具身版大模型", date: "2026-03-11", content: "智谱 AI 将其大模型能力正式下放到物理终端。", cat: "智谱", url: "#" },
+        // ... 此处可以继续增加成百上千条
+    ];
 
     let allNews = [];
 
-    async function init() {
+    // 3. 处理与清洗
+    function init() {
         // 生成导航
         const nav = document.getElementById('category-nav');
         categories.forEach(cat => {
@@ -56,45 +72,53 @@
             nav.appendChild(div);
         });
 
-        try {
-            // 这里动态读取你的数据文件
-            const res = await fetch('news.json');
-            const data = await res.json();
-            
-            const seen = new Set();
-            allNews = data.map(item => {
-                let title = item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
-                if (title.includes("加速进化") && !title.includes("机器人")) title = title.replace("加速进化", "加速进化机器人品牌");
-                return { ...item, title, summary: (item.content || "").substring(0, 100) + "..." };
-            })
-            .filter(item => {
-                if (seen.has(item.title)) return false;
-                seen.add(item.title);
-                return true;
-            })
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        const seen = new Set();
+        allNews = rawNewsData.map(item => {
+            let title = item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
+            if (title.includes("加速进化") && !title.includes("机器人")) {
+                title = title.replace("加速进化", "加速进化机器人品牌");
+            }
+            return { ...item, title, summary: (item.content || "").substring(0, 100) + "..." };
+        })
+        .filter(item => {
+            if (seen.has(item.title)) return false;
+            seen.add(item.title);
+            return true;
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            filterNews('全部');
-        } catch (e) {
-            document.getElementById('news-container').innerHTML = `<div class="loading">暂未检测到 news.json 数据源。请确保数据已同步。</div>`;
-        }
+        filterNews('全部');
     }
 
+    // 4. 板块过滤
     function filterNews(cat) {
         document.querySelectorAll('.nav-tag').forEach(el => el.classList.toggle('active', el.innerText === cat));
         const container = document.getElementById('news-container');
         container.innerHTML = '';
+
         const filtered = (cat === '全部') ? allNews : allNews.filter(item => item.cat === cat);
-        if (filtered.length === 0) { container.innerHTML = `<div class="loading">"${cat}" 领域暂无情报更新</div>`; return; }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-hint">"${cat}" 领域暂无情报同步</div>`;
+            return;
+        }
+
         filtered.forEach(item => {
             const card = document.createElement('a');
             card.className = 'news-card';
             card.href = item.url; card.target = "_blank";
-            card.innerHTML = `<h3 class="card-title">${item.title}</h3><p class="card-summary">${item.summary}</p><div class="card-meta"><span><span class="cat-pill"># ${item.cat}</span> 📅 ${item.date}</span><span>👁 阅读: <span class="busuanzi_value_page_pv"></span> | 🔥 点击: ${Math.floor(Math.random()*100)}</span></div>`;
+            card.innerHTML = `
+                <h3 class="card-title">${item.title}</h3>
+                <p class="card-summary">${item.summary}</p>
+                <div class="card-meta">
+                    <span><span class="cat-pill"># ${item.cat}</span> 📅 ${item.date}</span>
+                    <span>👁 阅读: <span class="busuanzi_value_page_pv"></span> | 🔥 点击: ${Math.floor(Math.random()*200)}</span>
+                </div>`;
             container.appendChild(card);
         });
         if (window.bszTag) window.bszTag.fetch();
     }
+
     window.onload = init;
 </script>
 </body>
