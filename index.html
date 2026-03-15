@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Science Vibe | 机器人与 AI 深度追踪</title>
+    <title>My Science Vibe | 机器人与 AI 导航</title>
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         :root {
@@ -19,13 +19,12 @@
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            line-height: 1.5;
         }
 
-        /* 头部固定 */
+        /* 头部：包含总访问量和板块导航 */
         header {
             background: #fff;
-            padding: 1.5rem 0;
+            padding: 1.5rem 0 0 0;
             text-align: center;
             border-bottom: 1px solid #e2e8f0;
             position: sticky;
@@ -33,104 +32,44 @@
             z-index: 1000;
         }
 
-        .site-title { margin: 0; font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+        .site-title { margin: 0; font-size: 1.6rem; color: var(--primary); font-weight: 800; }
         
-        .stats-bar {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin: 10px 0;
-        }
+        .stats-bar { font-size: 0.75rem; color: var(--muted); margin: 8px 0; }
 
-        /* 导航板块 */
+        /* 板块导航条：支持横向滚动 */
         nav {
             display: flex;
             overflow-x: auto;
-            gap: 10px;
-            padding: 10px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            scrollbar-width: none;
+            gap: 8px;
+            padding: 12px 20px;
+            max-width: 100%;
+            background: #fff;
+            scrollbar-width: none; /* Firefox 隐藏滚动条 */
         }
-        nav::-webkit-scrollbar { display: none; }
+        nav::-webkit-scrollbar { display: none; } /* Chrome 隐藏滚动条 */
 
         .nav-tag {
-            padding: 6px 15px;
-            background: #fff;
+            padding: 6px 14px;
+            background: #f1f5f9;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             white-space: nowrap;
             transition: 0.2s;
+            color: var(--text);
+            flex-shrink: 0; /* 防止挤压 */
         }
 
+        .nav-tag:hover { background: #e2e8f0; }
         .nav-tag.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
 
-        /* 列表容器 */
+        /* 内容区 */
         main {
             max-width: 800px;
-            margin: 2rem auto;
+            margin: 1.5rem auto;
             padding: 0 1rem;
-        }
-
-        .news-grid { display: grid; gap: 1.5rem; }
-
-        /* 新闻卡片样式 */
-        .news-card {
-            display: block;
-            text-decoration: none;
-            background: var(--card);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            color: inherit;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .news-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border-color: #dbeafe;
-        }
-
-        .card-title {
-            margin: 0 0 10px 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #0f172a;
-        }
-
-        .card-summary {
-            font-size: 0.95rem;
-            color: var(--muted);
-            margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* 概要最多显示2行 */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 10px;
-        }
-
-        .cat-pill {
-            background: #eff6ff;
-            color: var(--primary);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .empty-hint { text-align: center; padding: 50
