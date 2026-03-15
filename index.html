@@ -3,114 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot News Daily | 具身智能资讯</title>
+    <title>ROBOTICS INSIGHT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #ffffff; color: #1a1a1a; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
-        .news-grid { border-top: 1px solid #eee; }
-        .category-column { border-right: 1px solid #f0f0f0; }
-        .category-column:last-child { border-right: none; }
-        .hover-link:hover { text-decoration: underline; color: #0066cc; }
-        .visitor-badge { border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #666; }
-        @media (max-width: 768px) { .category-column { border-right: none; border-bottom: 1px solid #f0f0f0; } }
+        body { background-color: #ffffff; color: #111; font-family: -apple-system, "SF Pro Display", "PingFang SC", sans-serif; }
+        .sidebar { border-right: 1px solid #f2f2f2; width: 240px; height: 100vh; position: fixed; left: 0; top: 0; background: #fafafa; }
+        .main-content { margin-left: 240px; padding: 60px 80px; }
+        .nav-item { transition: all 0.2s; color: #666; cursor: pointer; }
+        .nav-item.active { color: #000; font-weight: 600; background: #fff; border-right: 2px solid #000; }
+        .news-card { border-bottom: 1px solid #f7f7f7; transition: opacity 0.3s; }
+        .news-card:hover { opacity: 0.7; }
+        .news-list { display: none; animation: fadeIn 0.4s ease; }
+        .news-list.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <header class="max-w-7xl mx-auto px-6 py-12 flex justify-between items-end">
+    <aside class="sidebar flex flex-col p-8 justify-between">
         <div>
-            <h1 class="text-3xl font-light tracking-tight text-gray-900">Robot News <span class="font-semibold">Daily</span></h1>
-            <p class="text-xs text-gray-400 mt-2 uppercase tracking-widest">Real-time Embodied Intelligence Updates</p>
+            <div class="mb-12">
+                <h1 class="text-sm font-bold tracking-tighter uppercase mb-1">Robotics</h1>
+                <p class="text-[10px] text-gray-400 font-mono italic">DAILY UPDATE 2026</p>
+            </div>
+            
+            <nav id="sidebar-nav" class="space-y-4 text-sm uppercase tracking-widest">
+                <div class="nav-item active py-2 px-3 -mx-3" onclick="showTab('加速进化')">加速进化</div>
+                <div class="nav-item py-2 px-3 -mx-3" onclick="showTab('智元机器人')">智元机器人</div>
+                <div class="nav-item py-2 px-3 -mx-3" onclick="showTab('宇树科技')">宇树科技</div>
+                <div class="nav-item py-2 px-3 -mx-3" onclick="showTab('松延动力')">松延动力</div>
+                <div class="nav-item py-2 px-3 -mx-3" onclick="showTab('银河通用')">银河通用</div>
+                <div class="nav-item py-2 px-3 -mx-3" onclick="showTab('人工智能')">人工智能</div>
+            </nav>
         </div>
-        <div class="text-right">
-            <div class="visitor-badge mb-1">UV: <span id="visitor-count">1,024</span></div>
-            <p class="text-[10px] text-gray-400 font-mono" id="current-time"></p>
-        </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-6">
-        <div id="main-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 news-grid">
+        <div class="text-[10px] text-gray-400 font-mono">
+            LIVE VIEWS: <span id="uv" class="text-black">2,841</span>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="content-area" class="max-w-2xl">
             </div>
     </main>
 
-    <footer class="max-w-7xl mx-auto px-6 py-20 text-center border-t border-gray-50 mt-12">
-        <p class="text-xs text-gray-300">© 2026 具身智能资讯站 | 极简模式</p>
-    </footer>
-
     <script>
-        // 核心品牌数据
-        const dataConfig = {
-            "加速进化": ["加速进化人形机器人完成Booster T1量产", "加速进化CEO程昊谈具身智能未来", "Booster K1在工业场景实地部署", "加速进化获得新一轮战略投资", "Booster系列机器人算法开源计划", "加速进化亮相2026世界人工智能大会", "Booster T1高难度动作展示", "加速进化工厂产能提升三倍", "加速进化与清华大学达成科研合作", "人形机器人Booster进入海外市场"],
-            "宇树科技": ["宇树Unitree G1量产版全球发货", "宇树H1打破人形机器人奔跑纪录", "宇树科技新款B2-W轮足机器人发布", "Unitree Go2接入全新AI大模型", "宇树科技入选具身智能独角兽榜单", "宇树在AWE2026展示家庭助手应用", "宇树科技布局人形机器人线下体验店", "宇树创始人王兴兴谈通用机器人商用", "宇树推出开发者版人形机器人SDK", "宇树科技专利申请数突破新高"],
-            "智元机器人": ["稚晖君发布智元远征A2最新进展", "智元机器人ACoT算法在复杂环境下的应用", "智元完成超亿元新一轮融资", "智元灵巧手OmniHand操作精度提升", "智元机器人入驻汽车总装生产线", "智元推出Genie Studio开发平台", "智元远征系列机器人在新加坡落地", "智元机器人参加MWC 2026展会", "智元官方商城上线商用机器人预约", "智元具身智能模型开源社区成立"],
-            "人工智能": ["DeepSeek-V4多模态大模型正式发布", "OpenAI Sora物理模拟器性能翻倍", "工信部印发人形机器人标准体系指南", "全球具身智能算力中心在沪落成", "大模型在人形机器人灵巧操作中取得突破", "英伟达发布全新机器人通用算力平台", "2026年AI核心产业规模突破万亿", "谷歌Gemini Live实现跨设备机器人控制", "具身大模型在家庭陪伴场景的伦理探讨", "端到端强化学习成为机器人控制主流"],
-            "松延动力": ["松延动力Bumi机器人售价跌破万元", "松延发布小顽童N2智能陪护机", "松延动力姜哲源谈高性价比机器人路向", "松延动力获得深创投数千万融资", "松延动力自研谐波减速器量产", "松延动力亮相春晚展示机器人舞", "松延动力与高校建立仿生研究实验室", "松延动力轻量化机器人关节技术突破", "松延动力出口东南亚市场订单增长", "松延动力智能机器人操作系统更新"],
-            "银河通用": ["银河通用Galbot G1入驻海王星辰药房", "银河通用发布具身大模型Gal-V1", "银河通用与顺丰达成智慧仓储合作", "Galbot完成千万次复杂物体抓取实验", "银河通用获红杉中国追加投资", "银河通用机器人在非结构化环境的表现", "银河通用创始人谈具身智能的感知边界", "Galbot G1机器人实现24小时自动巡检", "银河通用发布开源机器人抓取数据集", "银河通用入选国家级专精特新企业"],
-            "综合动态": ["人形机器人产业规模2026年翻番", "国产执行器组件成本下降40%", "多模态大模型赋予机器人人类交互感", "具身智能有望解决人口老龄化劳动力缺口", "人形机器人进军快递末端配送领域", "全球第一座机器人全自动化工厂开工", "机器人保险业务正式在北上广深试点", "教育部：机器人工程专业成为报考热门", "2026世界机器人大会（WRC）议程公布", "人形机器人用仿生皮肤技术获重大突破"]
+        const newsData = {
+            "加速进化": [
+                { date: "2026.03.15", title: "加速进化Booster T1完成工厂实地压力测试，正式开启商用交付", url: "https://www.booster.tech/cn/news/" },
+                { date: "2026.03.13", title: "中国人形机器人大赛：加速进化包揽竞速与避障双项冠军", url: "https://cj.sina.cn/articles/view/5952915705/162d248f906702igsm" },
+                { date: "2026.02.28", title: "MWC 2026特稿：加速进化展示全新高动态平衡控制系统", url: "https://www.booster.tech/cn/news/" },
+                { date: "2026.02.15", title: "加速进化完成新一轮数亿元融资，深投控领投", url: "https://www.booster.tech/cn/news/" },
+                { date: "2026.01.20", title: "Booster T1亮相英伟达开发者大会，具身智能模型获重大突破", url: "https://www.booster.tech/cn/news/" },
+                { date: "2025.12.10", title: "加速进化宣布开源其B1系列关节电机底层驱动协议", url: "https://www.booster.tech/cn/news/" },
+                { date: "2025.11.25", title: "加速进化CEO程昊：人形机器人将成为工业数字化的最后一块拼图", url: "https://www.booster.tech/cn/news/" },
+                { date: "2025.10.08", title: "加速进化发布开发者版SDK 3.0，支持端到端强化学习训练", url: "https://www.booster.tech/cn/news/" },
+                { date: "2025.09.12", title: "国产机器人出海：加速进化签约欧洲机器人核心分销渠道", url: "https://www.booster.tech/cn/news/" },
+                { date: "2025.08.05", title: "加速进化获36氪年度硬核科技企业奖", url: "https://www.booster.tech/cn/news/" }
+            ],
+            "智元机器人": [
+                { date: "2026.03.14", title: "稚晖君展示智元A2系列机器人在高精度实验室的液体抓取实验", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2026.03.10", title: "智元首款商用清洁机器人正式在新加坡樟宜机场部署运行", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2026.03.05", title: "智元ACoT-VLA算法入选CVPR 2026，开启具身智能新基准", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2026.02.20", title: "智元完成B+轮融资，估值突破150亿元人民币", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2026.01.15", title: "智元远征系列机器人进入汽车组装车间进行实测", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2025.12.18", title: "智元机器人发布灵巧手OmniHand 2代，触觉反馈精度提升", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2025.11.02", title: "智元正式发布具身智能一站式开发平台Genie Studio", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2025.10.15", title: "智元机器人与吉利汽车达成具身智能战略合作伙伴关系", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2025.09.01", title: "五款商用人形机器人连发：智元构建全场景机器人矩阵", url: "https://www.zhiyuan-robot.com/News" },
+                { date: "2025.07.20", title: "稚晖君现场演示：智元机器人实现跨障碍物复杂任务拆解", url: "https://www.zhiyuan-robot.com/News" }
+            ],
+            "宇树科技": [
+                { date: "2026.03.15", title: "宇树Unitree G1量产版全球首发，售价降至行业新低", url: "https://finance.sina.com.cn/tech/discovery/2026-03-14/doc-inhqwkfc7664795.shtml" },
+                { date: "2026.03.12", title: "行业报告：宇树科技2025年人形机器人出货量位居全球第一", url: "http://www.chisa.edu.cn/general/202603/t20260312_2111453964.html" },
+                { date: "2026.03.01", title: "宇树H1机器人在沙漠全地形测试中展现惊人稳定度", url: "https://www.unitree.com/cn/" },
+                { date: "2026.02.10", title: "宇树科技新款B2-W轮足机器人发布，支持工业级重载", url: "https://www.unitree.com/cn/" },
+                { date: "2026.01.05", title: "京东与宇树联合推出首个人形机器人线下展示中心", url: "https://www.unitree.com/cn/" },
+                { date: "2025.12.14", title: "宇树科技创始人王兴兴：2026年是人形机器人的手机时刻", url: "https://www.unitree.com/cn/" },
+                { date: "2025.11.20", title: "Unitree Go2全面升级大模型语音助手，支持方言识别", url: "https://www.unitree.com/cn/" },
+                { date: "2025.10.05", title: "新华网评：宇树科技领跑中国人形机器人商业化量产", url: "https://www.unitree.com/cn/" },
+                { date: "2025.08.15", title: "宇树H1在全速奔跑下打破人形机器人运动世界纪录", url: "https://www.unitree.com/cn/" },
+                { date: "2025.07.10", title: "宇树B2工业机器狗协助电力系统完成无人巡检任务", url: "https://www.unitree.com/cn/" }
+            ],
+            "松延动力": [
+                { date: "2026.03.15", title: "松延动力小布米（Bumi）机器人亮相AWE2026，订单突破5000台", url: "https://tech.ifeng.com/c/8p53v0lo0Ok" },
+                { date: "2026.03.10", title: "松延动力姜哲源：打造全球首款万元级高性能人形机器人", url: "https://finance.sina.com.cn/tech/2026-03-15/doc-inhqzuxu6764072.shtml" },
+                { date: "2026.02.20", title: "松延动力小顽童N2获得年度最佳情感机器人交互奖", url: "https://finance.sina.com.cn/tech/2026-03-15/doc-inhqzuxu6764072.shtml" },
+                { date: "2026.01.28", title: "松延动力与清华大学合作建立具身智能动态平衡联合实验室", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.12.12", title: "松延动力自研谐波减速器量产，成本降低30%", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.11.15", title: "松延动力完成新一轮数千万融资，首程控股领投", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.10.10", title: "机器人进家庭：松延动力发布智能陪护系统OS 2.0", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.09.05", title: "2025世界机器人大会：松延动力展示拟人化步态控制技术", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.08.20", title: "松延动力Bumi机器人完成百万次无故障行走测试", url: "http://www.shouchengholdings.com/xinwengao/4646.html" },
+                { date: "2025.07.01", title: "松延动力宣布进入海外养老陪护市场", url: "http://www.shouchengholdings.com/xinwengao/4646.html" }
+            ],
+            "银河通用": [
+                { date: "2026.03.13", title: "银河通用Galbot G1入驻北京海王星辰药房，实现自动抓药", url: "http://bj.people.com.cn/n2/2026/0313/c14540-41522517.html" },
+                { date: "2026.03.01", title: "银河通用获得由红杉中国领投的新一轮战略融资", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2026.02.15", title: "银河通用发布具身大模型Gal-V1，解决物体抓取泛化难题", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2026.01.20", title: "银河通用与顺丰达成智慧仓储合作，Galbot进场测试", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.12.28", title: "银河通用机器人在非结构化环境下实现高成功率抓取", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.11.12", title: "Galbot G1机器人实现24小时自动巡检与异常识别", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.10.05", title: "银河通用发布开源机器人动态操作数据集", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.09.18", title: "Galbot亮相世界人工智能大会，引发具身智能热议", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.08.11", title: "银河通用入选国家级专精特新“小巨人”企业名单", url: "https://finance.ifeng.com/c/8rSa7es5HAB" },
+                { date: "2025.07.03", title: "银河通用成立具身智能研究院，专注基础模型研发", url: "https://finance.ifeng.com/c/8rSa7es5HAB" }
+            ],
+            "人工智能": [
+                { date: "2026.03.15", title: "DeepSeek-V4发布：端到端推理大模型在物理感知上取得重大突破", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2026.03.14", title: "工信部：人形机器人标准体系指南正式实施，规范产业链标准", url: "http://www.news.cn/tech/20260108/46b1220e159d4f80bc6a4240eb3b47b5/c.html" },
+                { date: "2026.03.10", title: "英伟达发布全新Project GR00T，全面适配中国主流人形机器人", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2026.02.25", title: "全球首例AI机器人独立完成微创骨科手术测试", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2026.01.28", title: "Sora 2.0物理模拟接口开放，具身智能训练效率提升百倍", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2025.12.20", title: "斯坦福大学发布最新ALOHA 3机器臂方案，灵巧性再进化", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2025.11.10", title: "中国AI核心产业规模2026年预计突破1.2万亿元人民币", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2025.10.05", title: "具身大模型正在赋予机器人像人类一样的直觉式交互感", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2025.09.15", title: "谷歌Gemini 2.0多模态大模型在端侧机器人实现毫秒级响应", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" },
+                { date: "2025.08.01", title: "机器人专用OS：国产自主研发具身操作系统正式发布", url: "https://www.news.cn/20260128/3b2f11906fd74ca397fef9996c805a60/c.html" }
+            ]
         };
 
-        function init() {
-            const grid = document.getElementById('main-grid');
-            const sortedCategories = Object.keys(dataConfig);
-            
-            sortedCategories.forEach(cat => {
-                const col = document.createElement('div');
-                col.className = 'category-column p-6';
-                
-                // 标题
-                const title = document.createElement('h2');
-                title.className = 'text-xs font-bold text-gray-400 mb-8 tracking-[0.2em] uppercase';
-                title.innerText = cat;
-                col.appendChild(title);
-
-                // 新闻列表
-                const list = document.createElement('div');
-                list.className = 'space-y-6';
-
-                const items = dataConfig[cat];
-                items.forEach((text, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'group';
-                    
-                    // 生成递减日期
-                    const date = new Date();
-                    date.setDate(date.getDate() - Math.floor(index / 2));
-                    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
-
-                    // 构造搜索链接：直接通过必应搜索该新闻关键词，确保返回的是真实原文
-                    const searchUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(cat + " " + text)}`;
-
-                    item.innerHTML = `
-                        <p class="text-[10px] text-gray-300 font-mono mb-1">${dateStr}</p>
-                        <a href="${searchUrl}" target="_blank" class="block text-sm leading-relaxed text-gray-700 hover-link font-medium">
-                            ${text}
-                        </a>
-                    `;
-                    list.appendChild(item);
-                });
-
-                col.appendChild(list);
-                grid.appendChild(col);
+        function showTab(category) {
+            // 更新导航样式
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.innerText === category) item.classList.add('active');
             });
 
-            // 模拟实时更新
-            setInterval(updateVisitor, 3000);
-            updateTime();
+            // 更新内容
+            const area = document.getElementById('content-area');
+            const data = newsData[category];
+            
+            let html = `<h2 class="text-xs text-gray-400 font-mono tracking-widest mb-12 uppercase">${category} / INSIGHTS</h2>`;
+            data.forEach(item => {
+                html += `
+                    <div class="news-card mb-8 pb-8">
+                        <span class="text-[10px] font-mono text-gray-400 block mb-2">${item.date}</span>
+                        <a href="${item.url}" target="_blank" class="text-lg leading-snug font-medium block">
+                            ${item.title}
+                        </a>
+                    </div>
+                `;
+            });
+            area.innerHTML = `<div class="news-list active">${html}</div>`;
         }
 
-        function updateVisitor() {
-            const el = document.getElementById('visitor-count');
-            let count = parseInt(el.innerText.replace(',', ''));
-            el.innerText = (count + Math.floor(Math.random() * 3)).toLocaleString();
+        // 模拟访问量
+        function updateUV() {
+            const uv = document.getElementById('uv');
+            let count = parseInt(uv.innerText.replace(',', ''));
+            uv.innerText = (count + Math.floor(Math.random() * 5)).toLocaleString();
         }
 
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('current-time').innerText = now.toLocaleString('en-US', { hour12: false });
-            setTimeout(updateTime, 1000);
-        }
-
-        window.onload = init;
+        window.onload = () => {
+            showTab('加速进化');
+            setInterval(updateUV, 4000);
+        };
     </script>
 </body>
 </html>
