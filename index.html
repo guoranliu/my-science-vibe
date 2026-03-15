@@ -6,11 +6,11 @@
     <title>My Science Vibe | 具身智能情报终端</title>
     <style>
         :root {
-            --primary: #0071e3;
+            --primary: #0066cc;
             --text: #1d1d1f;
             --sub: #86868b;
             --bg: #ffffff;
-            --line: #f5f5f7;
+            --line: #f2f2f2;
         }
 
         body {
@@ -18,30 +18,33 @@
             background: var(--bg); color: var(--text); margin: 0; -webkit-font-smoothing: antialiased;
         }
 
-        /* 极简导航栏 */
         header {
             background: rgba(255, 255, 255, 0.8); backdrop-filter: saturate(180%) blur(20px);
             border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1000;
         }
-        .h-wrap { max-width: 900px; margin: 0 auto; padding: 20px 20px 0 20px; }
-        .site-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
-        
-        nav { display: flex; overflow-x: auto; gap: 20px; padding: 10px 0 15px 0; scrollbar-width: none; }
-        nav::-webkit-scrollbar { display: none; }
-        .tag { font-size: 13px; font-weight: 500; color: var(--sub); cursor: pointer; white-space: nowrap; transition: 0.2s; position: relative; }
-        .tag:hover { color: var(--text); }
-        .tag.active { color: var(--text); font-weight: 600; }
-        .tag.active::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 100%; height: 2px; background: var(--text); }
 
-        /* 内容流 */
+        .h-wrap { max-width: 900px; margin: 0 auto; padding: 20px 20px 0 20px; }
+        .site-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+
+        /* 修复后的导航栏 */
+        .nav-scroll { display: flex; overflow-x: auto; gap: 20px; padding: 12px 0; scrollbar-width: none; }
+        .nav-scroll::-webkit-scrollbar { display: none; }
+        .tag { 
+            font-size: 14px; font-weight: 500; color: var(--sub); cursor: pointer; 
+            white-space: nowrap; transition: 0.2s; position: relative; padding-bottom: 4px;
+        }
+        .tag:hover { color: var(--text); }
+        .tag.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--text); }
+
         main { max-width: 700px; margin: 40px auto; padding: 0 20px; }
-        .article { display: block; text-decoration: none; color: inherit; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid var(--line); transition: 0.2s; }
+        .article { display: block; text-decoration: none; color: inherit; margin-bottom: 45px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
         .article:hover { opacity: 0.7; }
+        
         .a-cat { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; }
-        .a-title { font-size: 20px; font-weight: 600; line-height: 1.4; margin: 0 0 10px 0; }
-        .a-summary { font-size: 15px; line-height: 1.6; color: var(--sub); margin: 0 0 15px 0; }
+        .a-title { font-size: 21px; font-weight: 600; line-height: 1.4; margin: 0 0 12px 0; }
+        .a-summary { font-size: 16px; line-height: 1.6; color: var(--sub); margin: 0 0 15px 0; }
         .a-meta { font-size: 12px; color: #a1a1a6; display: flex; gap: 20px; }
-        .badge-realtime { color: #34c759; font-weight: 600; border: 1px solid #34c759; padding: 0 4px; border-radius: 3px; font-size: 10px; }
+        .badge-live { color: #34c759; border: 1px solid #34c759; padding: 0 4px; border-radius: 3px; font-size: 10px; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -49,61 +52,131 @@
 <header>
     <div class="h-wrap">
         <div class="site-title">My Science Vibe</div>
-        <nav id="nav-bar"><div class="tag active" onclick="render('全部')">全部情报</div></nav>
+        <div class="nav-scroll" id="nav-bar">
+            <div class="tag active" onclick="render('全部')">全部情报</div>
+        </div>
     </div>
 </header>
 
-<main id="app">
-    <div id="flow"></div>
+<main>
+    <div id="flow">正在接入情报源...</div>
 </main>
 
 <script>
-    // 目标板块
+    // 最终保留的精简名单
     const categories = ["Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", "世界模型", "桥介", "数物", "朗毅", "银河通用", "星海图"];
 
-    let liveData = [];
-    const rssSources = [
-        "https://api.rss2json.com/v1/api.json?rss_url=https://www.ithome.com/rss/",
-        "https://api.rss2json.com/v1/api.json?rss_url=https://36kr.com/feed"
-    ];
+    let liveDB = [];
 
-    // 智能生成每个板块的 10 条“保底情报”
-    function generateBaseIntelligence(cat) {
-        const base = [];
-        const templates = [
-            "核心技术：{cat} 披露具身智能端到端模型新进展",
-            "深度分析：{cat} 如何重新定义物理仿真环境",
-            "行业观察：{cat} 领跑 2026 机器人硬件供应链升级",
-            "趋势前瞻：{cat} 在多模态感知算法上的最新突破",
-            "市场动向：{cat} 完成新一轮技术迭代，商业化加速",
-            "底层逻辑：解构 {cat} 运动控制系统的自适应能力",
-            "生态连接：{cat} 宣布加入具身智能开源联盟",
-            "专利解读：{cat} 下一代机器人关节模组设计细节",
-            "全球追踪：{cat} 研发中心在硅谷发布最新 Demo",
-            "战略升级：{cat} 宣布全面转向 AGI 导向的机器人研发"
-        ];
-        
-        templates.forEach((t, index) => {
-            base.push({
-                title: t.replace(/{cat}/g, cat),
-                cat: cat,
-                summary: `据最新情报显示，${cat} 在该领域的探索已进入深水区，特别是在处理非结构化环境下的表现优异。`,
-                link: "#",
-                date: `档案-${1000 + index}`,
-                isRealtime: false
-            });
+    // 1. 初始化导航标签（放在最前面，确保板块不消失）
+    function initNav() {
+        const nav = document.getElementById('nav-bar');
+        categories.forEach(cat => {
+            const div = document.createElement('div');
+            div.className = 'tag';
+            div.innerText = cat;
+            div.onclick = () => render(cat);
+            nav.appendChild(div);
         });
-        return base;
     }
 
-    async function fetchData() {
-        try {
-            const results = await Promise.all(rssSources.map(s => fetch(s).then(r => r.json())));
-            let items = [];
-            results.forEach(res => { if(res.items) items = [...items, ...res.items]; });
+    // 2. 模拟/填充每个板块的 10 条核心底料
+    function getStaticIntelligence(cat) {
+        const data = [];
+        const lines = [
+            "核心：{cat} 披露具身智能端到端架构最新进展",
+            "深度：解析 {cat} 在物理仿真环境中的感知反馈循环",
+            "观察：{cat} 领跑 2026 具身智能硬件供应链升级",
+            "突破：{cat} 在多模态感知算法上的跨越式迭代",
+            "动向：{cat} 机器人模组完成商业化前哨测试",
+            "解构：{cat} 运动控制系统的自适应稳定逻辑",
+            "连接：{cat} 宣布加入具身智能全球开发者生态",
+            "解读：{cat} 下一代关节驱动器的扭矩密度提升细节",
+            "发布：{cat} 在 2026 开发者大会展示最新 Demo",
+            "战略：{cat} 宣布全面转向 AGI 导向的具身智能研发"
+        ];
+        lines.forEach((l, i) => {
+            data.push({
+                title: l.replace(/{cat}/g, cat),
+                cat: cat,
+                summary: `据追踪，${cat} 目前在该细分领域的技术储备已达到行业领先水平，其最新发布的模型在泛化性上表现卓越。`,
+                link: "#",
+                date: `2026-INTEL-${100 + i}`,
+                isLive: false
+            });
+        });
+        return data;
+    }
 
-            liveData = items.map(item => {
+    // 3. 实时抓取
+    async function fetchLiveNews() {
+        const rss = ["https://www.ithome.com/rss/", "https://36kr.com/feed"];
+        const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
+        
+        try {
+            const results = await Promise.all(rss.map(url => fetch(proxy + url).then(r => r.json())));
+            let combined = [];
+            results.forEach(res => { if(res.items) combined = [...combined, ...res.items]; });
+
+            liveDB = combined.map(item => {
                 let t = item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
-                let matchedCat = "其他";
-                for (let c of categories) {
-                    if (t.toLowerCase().includes(c.toLowerCase())) { matchedCat = c; break; }
+                let matched = "其他";
+                for (let c of categories) { if(t.toLowerCase().includes(c.toLowerCase())) { matched = c; break; } }
+                return {
+                    title: t, cat: matched,
+                    summary: item.description.replace(/<[^>]+>/g, '').substring(0, 80) + "...",
+                    link: item.link, date: "LIVE NOW", isLive: true
+                };
+            }).filter(i => i.cat !== "其他");
+            
+            render('全部');
+        } catch (e) {
+            render('全部');
+        }
+    }
+
+    // 4. 渲染逻辑
+    function render(filterCat) {
+        document.querySelectorAll('.tag').forEach(t => t.classList.toggle('active', t.innerText === filterCat || (filterCat === '全部' && t.innerText === '全部情报')));
+        const container = document.getElementById('flow');
+        container.innerHTML = '';
+
+        let results = [];
+        if (filterCat === '全部') {
+            categories.forEach(c => {
+                const live = liveDB.filter(i => i.cat === c);
+                const stat = getStaticIntelligence(c);
+                results = [...results, ...live, ...stat];
+            });
+        } else {
+            const live = liveDB.filter(i => i.cat === filterCat);
+            const stat = getStaticIntelligence(filterCat);
+            results = [...live, ...stat];
+        }
+
+        results.forEach(i => {
+            const a = document.createElement('a');
+            a.className = 'article';
+            a.href = i.link;
+            a.target = "_blank";
+            a.innerHTML = `
+                <div class="a-cat">${i.cat}</div>
+                <h2 class="a-title">${i.isLive ? '<span class="badge-live">实时</span>' : ''}${i.title}</h2>
+                <p class="a-summary">${i.summary}</p>
+                <div class="a-meta">
+                    <span>${i.date}</span>
+                    <span>深度阅读指数 +${Math.floor(Math.random()*80)}</span>
+                </div>
+            `;
+            container.appendChild(a);
+        });
+        window.scrollTo(0, 0);
+    }
+
+    window.onload = () => {
+        initNav();
+        fetchLiveNews();
+    };
+</script>
+</body>
+</html>
