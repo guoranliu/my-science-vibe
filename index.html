@@ -73,3 +73,172 @@
             max-width: 800px;
             margin: 1.5rem auto;
             padding: 0 1rem;
+        }
+
+        .news-grid { display: grid; gap: 1.2rem; }
+
+        .news-card {
+            display: block;
+            text-decoration: none;
+            background: var(--card);
+            padding: 1.2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: inherit;
+            transition: 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+            border-left-color: var(--primary);
+        }
+
+        .card-title {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .card-summary {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 8px;
+        }
+
+        .cat-label {
+            color: var(--primary);
+            font-weight: 700;
+            background: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .empty-state { text-align: center; padding: 100px; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="site-title">My Science Vibe</div>
+    <div class="stats-bar">
+        <span id="busuanzi_container_site_pv">🌍 站点访问量: <span id="busuanzi_value_site_pv">...</span></span>
+    </div>
+    <nav id="category-nav">
+        <div class="nav-tag active" onclick="filterNews('全部')">全部</div>
+    </nav>
+</header>
+
+<main>
+    <div id="news-container" class="news-grid"></div>
+</main>
+
+<script>
+    // 1. 完整板块名单 (共 60+ 个)
+    const categories = ["Tesla", "Nvidia", "Google", "字节", "马斯克", "黄仁勋", "李飞飞", "宇树", "加速进化", "松延动力", "智元机器人", "运动控制", "机器人导航", "VLN", "VLA", "世界模型", "openclaw", "seedance", "cursor", "VAST", "光轮智能", "荣耀机器人", "小米机器人", "众擎", "逐际动力", "傅利叶", "魔法原子", "动易科技", "鹿明", "钛虎", "优必选", "乐聚", "越疆", "卓益得", "小鹏", "桥介", "数物", "朗毅", "旷维", "炬锐", "飞阔科技", "具深科技", "华鑫立业", "天树", "探界", "银河通用", "星海图", "星动纪元", "自变量", "千寻", "千诀科技", "云深处", "维他动力", "智谱", "豆包", "千问", "Kimi", "OpenAI", "Gemini", "manus", "notebooklm", "Claude", "claudecode", "Anthropic", "Nano Banana", "Vibe Coding"];
+
+    // 2. 初始数据 (确保 cat 字段与名单对应)
+    const rawNewsData = [
+        { title: "【!!】加速进化发布最新 humanoid ！！", date: "2026-03-15", content: "加速进化机器人品牌推出了其最新的高动态平衡算法...", cat: "加速进化", url: "#" },
+        { title: "Tesla Optimus 进驻车间", date: "2026-03-15", content: "特斯拉人形机器人已经在德州工厂开始搬运电池包...", cat: "Tesla", url: "#" },
+        { title: "Tesla Optimus 进驻车间", date: "2026-03-15", content: "重复数据测试", cat: "Tesla", url: "#" },
+        { title: "Nvidia GR00T 项目更新", date: "2026-03-14", content: "黄仁勋展示了基于 Blackwell 架构的机器人训练平台...", cat: "Nvidia", url: "#" },
+        { title: "宇树科技 G1 量产版发布", date: "2026-03-13", content: "国产人形机器人宇树G1以极具竞争力的价格开启预售...", cat: "宇树", url: "#" },
+        { title: "OpenAI 与 Figure 联手", date: "2026-03-12", content: "大脑与身体的结合，Figure 01 展现出惊人的语言理解能力...", cat: "OpenAI", url: "#" }
+    ];
+
+    let processedData = [];
+
+    // 3. 处理数据
+    function process() {
+        const seen = new Set();
+        processedData = rawNewsData
+            .map(item => {
+                // 标题清洗
+                let cleanTitle = item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
+                // 品牌修正
+                if (cleanTitle.includes("加速进化") && !cleanTitle.includes("机器人")) {
+                    cleanTitle = cleanTitle.replace("加速进化", "加速进化机器人品牌");
+                }
+                return { ...item, title: cleanTitle, summary: item.content.slice(0, 80) + "..." };
+            })
+            // 去重
+            .filter(item => {
+                if (seen.has(item.title)) return false;
+                seen.add(item.title);
+                return true;
+            })
+            // 排序
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // 生成导航 UI
+        const nav = document.getElementById('category-nav');
+        categories.forEach(cat => {
+            const div = document.createElement('div');
+            div.className = 'nav-tag';
+            div.innerText = cat;
+            div.onclick = () => filterNews(cat);
+            nav.appendChild(div);
+        });
+
+        filterNews('全部');
+    }
+
+    // 4. 过滤函数
+    function filterNews(cat) {
+        document.querySelectorAll('.nav-tag').forEach(el => {
+            el.classList.toggle('active', el.innerText === cat);
+        });
+
+        const container = document.getElementById('news-container');
+        container.innerHTML = '';
+
+        const filtered = (cat === '全部') ? processedData : processedData.filter(item => item.cat === cat);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state">"${cat}" 领域暂无最新情报</div>`;
+            return;
+        }
+
+        filtered.forEach(item => {
+            const card = document.createElement('a');
+            card.className = 'news-card';
+            card.href = item.url;
+            card.target = "_blank";
+            card.innerHTML = `
+                <h3 class="card-title">${item.title}</h3>
+                <p class="card-summary">${item.summary}</p>
+                <div class="card-meta">
+                    <span><span class="cat-label">${item.cat}</span> 📅 ${item.date}</span>
+                    <span>👁 阅读: <span class="busuanzi_value_page_pv"></span> | 🔥 点击: ${Math.floor(Math.random()*50)}</span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        
+        // 刷新统计
+        if (window.bszTag) window.bszTag.fetch();
+    }
+
+    window.onload = process;
+</script>
+</body>
+</html>
